@@ -56,9 +56,6 @@ const Theme = () => {
     const secondaryHsl = `${h} ${Math.max(s - 20, 10)}% ${Math.min(l + 20, 90)}%`;
     const accentHsl = `${h} ${Math.max(s - 10, 5)}% ${Math.min(l + 15, 85)}%`;
     const borderHsl = `${h} ${Math.max(s - 30, 5)}% ${Math.min(l + 30, 80)}%`;
-    const mutedHsl = `${h} ${Math.max(s - 40, 5)}% ${Math.min(l + 40, 95)}%`;
-    const mutedForegroundHsl = `${h} ${Math.max(s - 20, 10)}% ${Math.max(l - 30, 25)}%`;
-    const foregroundHsl = l > 50 ? "0 0% 3.9%" : "0 0% 98%";
     
     // Apply CSS variables
     document.documentElement.style.setProperty('--primary', primaryHsl);
@@ -67,15 +64,6 @@ const Theme = () => {
     document.documentElement.style.setProperty('--accent', accentHsl);
     document.documentElement.style.setProperty('--border', borderHsl);
     document.documentElement.style.setProperty('--ring', primaryHsl);
-    document.documentElement.style.setProperty('--muted', mutedHsl);
-    document.documentElement.style.setProperty('--muted-foreground', mutedForegroundHsl);
-    document.documentElement.style.setProperty('--foreground', foregroundHsl);
-    
-    // Update text colors based on the theme
-    const textPrimaryHsl = l > 50 ? "0 0% 9%" : "0 0% 98%";
-    const textSecondaryHsl = l > 50 ? "0 0% 45%" : "0 0% 63%";
-    document.documentElement.style.setProperty('--text-primary', textPrimaryHsl);
-    document.documentElement.style.setProperty('--text-secondary', textSecondaryHsl);
     
     // Update category colors to work with the new theme
     const categories = ['motivational', 'life', 'wisdom', 'success', 'happiness', 'inspiration'];
@@ -119,10 +107,7 @@ const Theme = () => {
     setShowColorPicker(false);
     
     // Clear custom CSS variables by removing them
-    const customProperties = [
-      '--primary', '--primary-foreground', '--secondary', '--accent', '--border', '--ring',
-      '--muted', '--muted-foreground', '--foreground', '--text-primary', '--text-secondary'
-    ];
+    const customProperties = ['--primary', '--primary-foreground', '--secondary', '--accent', '--border', '--ring'];
     customProperties.forEach(prop => {
       document.documentElement.style.removeProperty(prop);
     });
