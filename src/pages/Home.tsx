@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuoteCard from "@/components/QuoteCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,11 +27,20 @@ interface Favorite {
   quote_id: string;
 }
 
+const getCategoryColor = (category: string) => {
+  return `rgb(var(--category-${category}) / 0.2)`;
+};
+
+const getCategoryTextColor = (category: string) => {
+  return `rgb(var(--category-${category}-dark))`;
+};
+
 const Home = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTab, setSelectedTab] = useState("all");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -88,6 +98,13 @@ const Home = () => {
   useEffect(() => {
     let filtered = quotes;
 
+    // Filter by tab (All/Mine/Others)
+    if (selectedTab === "mine" && user) {
+      filtered = filtered.filter(quote => quote.user_id === user.id);
+    } else if (selectedTab === "others" && user) {
+      filtered = filtered.filter(quote => quote.user_id !== user.id);
+    }
+
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter(quote => quote.category === selectedCategory);
@@ -102,7 +119,7 @@ const Home = () => {
     }
 
     setFilteredQuotes(filtered);
-  }, [quotes, selectedCategory, searchTerm]);
+  }, [quotes, selectedCategory, searchTerm, selectedTab, user]);
 
   const handleToggleFavorite = async (quoteId: string) => {
     if (!user) return;
@@ -159,6 +176,17 @@ const Home = () => {
           Find inspiration through carefully curated quotes from the world's greatest minds
         </p>
         
+        {/* Tab Filter */}
+        <div className="mb-8">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="mine" disabled={!user}>Mine</TabsTrigger>
+              <TabsTrigger value="others" disabled={!user}>Others</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
         {/* Search Bar and Category Filter */}
         <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-8">
           <div className="relative flex-1">
@@ -178,7 +206,20 @@ const Home = () => {
               <SelectContent>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category === "all" ? (
+                      "All Categories"
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full border"
+                          style={{ 
+                            backgroundColor: getCategoryColor(category),
+                            borderColor: getCategoryTextColor(category)
+                          }}
+                        />
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </div>
+                    )}
                   </SelectItem>
                 ))}
               </SelectContent>
