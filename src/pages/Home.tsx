@@ -244,11 +244,13 @@ const Home = () => {
         {/* Tab Filter */}
         <div className="mb-8">
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          {user && <>
+              <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="mine" disabled={!user}>Mine</TabsTrigger>
               <TabsTrigger value="others" disabled={!user}>Others</TabsTrigger>
             </TabsList>
+            </>}
           </Tabs>
         </div>
 
