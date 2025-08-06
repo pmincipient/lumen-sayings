@@ -14,6 +14,7 @@ import Submit from "./pages/Submit";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Theme from "./pages/Theme";
+import ResetPassword from "./pages/ResetPassword";
 import SharedQuote from "./pages/SharedQuote";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/submit" element={<Submit />} />
