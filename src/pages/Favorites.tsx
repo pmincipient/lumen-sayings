@@ -218,7 +218,7 @@ const Favorites = () => {
           {categoryStats.map((stat, index) => (
             <Card
               key={stat.category}
-              className="glass-card cursor-pointer hover:scale-105 transition-all duration-300 border-2"
+              className="glass-card cursor-pointer hover:scale-105 hover:shadow-lg transition-all duration-300 border-2 overflow-hidden"
               style={{ 
                 backgroundColor: getCategoryColor(stat.category),
                 borderColor: getCategoryTextColor(stat.category),
@@ -226,34 +226,41 @@ const Favorites = () => {
               }}
               onClick={() => setSelectedCategory(stat.category)}
             >
-              <CardHeader className="text-center pb-4">
-                <div 
-                  className="w-12 h-12 rounded-full border-2 mx-auto mb-3"
-                  style={{ 
-                    backgroundColor: getCategoryColor(stat.category),
-                    borderColor: getCategoryTextColor(stat.category)
-                  }}
-                />
+              <CardHeader className="pb-2">
                 <CardTitle 
-                  className="text-lg"
+                  className="text-xl font-bold mb-2"
                   style={{ color: getCategoryTextColor(stat.category) }}
                 >
-                  {stat.category.charAt(0).toUpperCase() + stat.category.slice(1)}
+                  {stat.category.charAt(0).toUpperCase() + stat.category.slice(1)} Category
                 </CardTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span 
+                      className="text-3xl font-bold"
+                      style={{ color: getCategoryTextColor(stat.category) }}
+                    >
+                      {stat.count}
+                    </span>
+                    <span 
+                      className="text-sm opacity-80"
+                      style={{ color: getCategoryTextColor(stat.category) }}
+                    >
+                      {stat.count === 1 ? 'Quote' : 'Quotes'}
+                    </span>
+                  </div>
+                  <Badge 
+                    variant="outline"
+                    className="px-3 py-1 border-2 font-medium hover:bg-white/20 transition-colors"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: getCategoryTextColor(stat.category),
+                      borderColor: getCategoryTextColor(stat.category)
+                    }}
+                  >
+                    View Quotes →
+                  </Badge>
+                </div>
               </CardHeader>
-              <CardContent className="text-center pt-0">
-                <Badge 
-                  variant="outline"
-                  className="text-lg px-4 py-2 border-2"
-                  style={{
-                    backgroundColor: getCategoryColor(stat.category),
-                    color: getCategoryTextColor(stat.category),
-                    borderColor: getCategoryTextColor(stat.category)
-                  }}
-                >
-                  {stat.count} {stat.count === 1 ? 'Quote' : 'Quotes'}
-                </Badge>
-              </CardContent>
             </Card>
           ))}
         </div>
