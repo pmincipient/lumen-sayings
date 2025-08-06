@@ -86,6 +86,9 @@ const Submit = () => {
       
       // Reset form
       setFormData({ content: "", author: "", category: "" });
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (error) {
       console.error('Error submitting quote:', error);
       toast({

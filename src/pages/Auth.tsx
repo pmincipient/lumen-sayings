@@ -48,6 +48,7 @@ const Auth = () => {
             title: "Password reset sent!",
             description: "Check your email for reset instructions",
           });
+
           setIsResetMode(false);
         }
       } else if (isLogin) {
@@ -89,6 +90,12 @@ const Auth = () => {
           });
         }
       }
+      setFormData({
+        email: "",
+        password: "",
+        confirmPassword: "",
+        username: "",
+      });
     } catch (error) {
       toast({
         title: "Authentication failed",

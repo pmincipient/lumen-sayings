@@ -11,9 +11,9 @@ const Navigation = () => {
   const { user } = useAuth();
 
   const navItems = [
-    { to: "/", icon: Home, label: "Home" },
+    { to: "/", icon: Home, label: "Gallery" },
     ...(user ? [
-      { to: "/submit", icon: Plus, label: "Submit" },
+      { to: "/submit", icon: Plus, label: "Add Quote" },
       { to: "/favorites", icon: Heart, label: "Favorites" },
     ] : []),
     ...(!user ? [{ to: "/auth", icon: User, label: "Login" }] : []),

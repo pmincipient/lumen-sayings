@@ -238,7 +238,7 @@ const Home = () => {
           <span className="gradient-text">Discover Wisdom</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Find inspiration through carefully curated quotes from the world's greatest minds
+        Fuel your day with wisdom from the world’s greatest minds.
         </p>
         
         {/* Tab Filter */}
