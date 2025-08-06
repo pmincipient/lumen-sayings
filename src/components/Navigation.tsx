@@ -1,19 +1,38 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Menu, X, Home, Heart, Plus, User, Settings, Tag, Quote } from "lucide-react";
+import { Menu, X, Home, Heart, Plus, User, LogOut, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
-    { to: "/categories", icon: Tag, label: "Categories" },
-    { to: "/favorites", icon: Heart, label: "Favorites" },
-    { to: "/submit", icon: Plus, label: "Submit" },
-    { to: "/profile", icon: User, label: "Profile" },
-    { to: "/settings", icon: Settings, label: "Settings" },
+    ...(user ? [
+      { to: "/favorites", icon: Heart, label: "Favorites" },
+      { to: "/submit", icon: Plus, label: "Submit" },
+    ] : []),
+    { to: "/auth", icon: User, label: user ? "Profile" : "Login" },
   ];
 
   return (
@@ -46,9 +65,20 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Theme Toggle & Mobile Menu */}
+          {/* Theme Toggle, Logout & Mobile Menu */}
           <div className="flex items-center space-x-2">
             <ThemeToggle />
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden md:flex"
+                onClick={handleSignOut}
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -81,6 +111,19 @@ const Navigation = () => {
                   <span className="font-medium">{item.label}</span>
                 </NavLink>
               ))}
+              {user && (
+                <Button
+                  variant="ghost"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg w-full justify-start text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  onClick={() => {
+                    handleSignOut();
+                    setIsOpen(false);
+                  }}
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Sign Out</span>
+                </Button>
+              )}
             </div>
           </div>
         )}

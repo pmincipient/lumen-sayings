@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Send, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = ["motivation", "success", "wisdom", "life", "inspiration", "business"];
 
@@ -17,6 +20,16 @@ const Submit = () => {
     author: "",
     category: "",
   });
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +45,27 @@ const Submit = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement Supabase submission
-      console.log("Submitting quote:", formData);
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to submit quotes",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('quotes')
+        .insert([{
+          content: formData.content.trim(),
+          author: formData.author.trim(),
+          category: formData.category,
+          user_id: user.id
+        }]);
+
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Quote submitted!",
@@ -43,6 +75,7 @@ const Submit = () => {
       // Reset form
       setFormData({ content: "", author: "", category: "" });
     } catch (error) {
+      console.error('Error submitting quote:', error);
       toast({
         title: "Submission failed",
         description: "Please try again later",

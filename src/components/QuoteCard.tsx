@@ -14,6 +14,30 @@ interface QuoteCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
+const getCategoryColor = (category: string) => {
+  const colorMap: Record<string, string> = {
+    motivation: "hsl(var(--category-motivation) / 0.1)",
+    success: "hsl(var(--category-success) / 0.1)",
+    wisdom: "hsl(var(--category-wisdom) / 0.1)",
+    life: "hsl(var(--category-life) / 0.1)",
+    inspiration: "hsl(var(--category-inspiration) / 0.1)",
+    business: "hsl(var(--category-business) / 0.1)",
+  };
+  return colorMap[category] || "hsl(var(--muted) / 0.1)";
+};
+
+const getCategoryBorderColor = (category: string) => {
+  const colorMap: Record<string, string> = {
+    motivation: "hsl(var(--category-motivation) / 0.3)",
+    success: "hsl(var(--category-success) / 0.3)",
+    wisdom: "hsl(var(--category-wisdom) / 0.3)",
+    life: "hsl(var(--category-life) / 0.3)",
+    inspiration: "hsl(var(--category-inspiration) / 0.3)",
+    business: "hsl(var(--category-business) / 0.3)",
+  };
+  return colorMap[category] || "hsl(var(--border))";
+};
+
 const QuoteCard = ({ 
   id, 
   content, 
@@ -71,7 +95,13 @@ const QuoteCard = ({
   };
 
   return (
-    <Card className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in">
+    <Card 
+      className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in border-2" 
+      style={{ 
+        backgroundColor: getCategoryColor(category),
+        borderColor: getCategoryBorderColor(category)
+      }}
+    >
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Quote Content */}
@@ -88,9 +118,14 @@ const QuoteCard = ({
           <div className="flex items-center justify-between">
             <Badge 
               variant="outline" 
-              className={`${getCategoryClass(category)} border-2 font-medium`}
+              className="border-2 font-medium"
+              style={{ 
+                backgroundColor: `hsl(var(--category-${category}) / 0.2)`,
+                color: `hsl(var(--category-${category}))`,
+                borderColor: `hsl(var(--category-${category}) / 0.4)`
+              }}
             >
-              {category}
+              {category.charAt(0).toUpperCase() + category.slice(1)}
             </Badge>
             
             {/* Actions */}

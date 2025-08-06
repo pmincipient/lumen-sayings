@@ -1,61 +1,86 @@
 import { useState, useEffect } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import QuoteCard from "@/components/QuoteCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-
-// Mock data for now
-const mockQuotes = [
-  {
-    id: "1",
-    content: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
-    category: "motivation",
-  },
-  {
-    id: "2", 
-    content: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    author: "Winston Churchill",
-    category: "success",
-  },
-  {
-    id: "3",
-    content: "The only true wisdom is in knowing you know nothing.",
-    author: "Socrates", 
-    category: "wisdom",
-  },
-  {
-    id: "4",
-    content: "Life is what happens to you while you're busy making other plans.",
-    author: "John Lennon",
-    category: "life",
-  },
-  {
-    id: "5",
-    content: "The future belongs to those who believe in the beauty of their dreams.",
-    author: "Eleanor Roosevelt",
-    category: "inspiration",
-  },
-  {
-    id: "6",
-    content: "Innovation distinguishes between a leader and a follower.",
-    author: "Steve Jobs",
-    category: "business",
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const categories = ["all", "motivation", "success", "wisdom", "life", "inspiration", "business"];
 
+interface Quote {
+  id: string;
+  content: string;
+  author: string;
+  category: string;
+  user_id: string;
+  created_at: string;
+}
+
+interface Favorite {
+  quote_id: string;
+}
+
 const Home = () => {
-  const [quotes, setQuotes] = useState(mockQuotes);
-  const [filteredQuotes, setFilteredQuotes] = useState(mockQuotes);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
+  // Fetch quotes from Supabase
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('quotes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching quotes:', error);
+        } else {
+          setQuotes(data || []);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuotes();
+  }, []);
+
+  // Fetch user favorites
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('quote_id')
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error fetching favorites:', error);
+        } else {
+          setFavorites(data?.map((fav: Favorite) => fav.quote_id) || []);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
+  // Filter quotes
   useEffect(() => {
     let filtered = quotes;
 
@@ -75,12 +100,36 @@ const Home = () => {
     setFilteredQuotes(filtered);
   }, [quotes, selectedCategory, searchTerm]);
 
-  const handleToggleFavorite = (quoteId: string) => {
-    setFavorites(prev => 
-      prev.includes(quoteId) 
-        ? prev.filter(id => id !== quoteId)
-        : [...prev, quoteId]
-    );
+  const handleToggleFavorite = async (quoteId: string) => {
+    if (!user) return;
+
+    try {
+      const isFavorited = favorites.includes(quoteId);
+      
+      if (isFavorited) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('quote_id', quoteId);
+
+        if (!error) {
+          setFavorites(prev => prev.filter(id => id !== quoteId));
+        }
+      } else {
+        // Add to favorites
+        const { error } = await supabase
+          .from('favorites')
+          .insert([{ user_id: user.id, quote_id: quoteId }]);
+
+        if (!error) {
+          setFavorites(prev => [...prev, quoteId]);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const getCategoryClass = (cat: string) => {
@@ -106,33 +155,31 @@ const Home = () => {
           Find inspiration through carefully curated quotes from the world's greatest minds
         </p>
         
-        {/* Search Bar */}
-        <div className="relative max-w-md mx-auto mb-8">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-          <Input
-            placeholder="Search quotes or authors..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 glass-card border-2"
-          />
-        </div>
-
-        {/* Category Filters */}
-        <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {categories.map((category) => (
-            <Badge
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              className={`cursor-pointer px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                selectedCategory === category 
-                  ? "bg-primary text-primary-foreground" 
-                  : category !== "all" ? getCategoryClass(category) : "hover:bg-secondary"
-              }`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Badge>
-          ))}
+        {/* Search Bar and Category Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+            <Input
+              placeholder="Search quotes or authors..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 glass-card border-2"
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="glass-card border-2">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -164,7 +211,10 @@ const Home = () => {
       {filteredQuotes.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">
-            No quotes found. Try adjusting your search or category filter.
+            {quotes.length === 0 
+              ? "No quotes yet. Be the first to submit a quote!" 
+              : "No quotes found. Try adjusting your search or category filter."
+            }
           </p>
         </div>
       )}

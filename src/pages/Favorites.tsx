@@ -1,35 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import QuoteCard from "@/components/QuoteCard";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock favorites data
-const mockFavorites = [
-  {
-    id: "1",
-    content: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
-    category: "motivation",
-  },
-  {
-    id: "3",
-    content: "The only true wisdom is in knowing you know nothing.",
-    author: "Socrates", 
-    category: "wisdom",
-  },
-];
+interface Quote {
+  id: string;
+  content: string;
+  author: string;
+  category: string;
+  user_id: string;
+  created_at: string;
+}
 
 const Favorites = () => {
-  const [favorites, setFavorites] = useState(mockFavorites);
+  const [favorites, setFavorites] = useState<Quote[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
+  // Fetch user's favorite quotes
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) return;
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('favorites')
+          .select(`
+            quote_id,
+            quotes (
+              id,
+              content,
+              author,
+              category,
+              user_id,
+              created_at
+            )
+          `)
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error fetching favorites:', error);
+        } else {
+          const favoriteQuotes = data?.map((fav: any) => fav.quotes).filter(Boolean) || [];
+          setFavorites(favoriteQuotes);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
 
   const filteredFavorites = favorites.filter(quote => 
     quote.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
     quote.author.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleToggleFavorite = (quoteId: string) => {
-    setFavorites(prev => prev.filter(quote => quote.id !== quoteId));
+  const handleToggleFavorite = async (quoteId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('quote_id', quoteId);
+
+      if (!error) {
+        setFavorites(prev => prev.filter(quote => quote.id !== quoteId));
+      }
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
   };
 
   return (
@@ -58,7 +118,13 @@ const Favorites = () => {
         </div>
       )}
 
-      {favorites.length === 0 ? (
+      {loading && (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      )}
+
+      {!loading && favorites.length === 0 ? (
         <div className="text-center py-12">
           <Heart className="h-24 w-24 text-muted-foreground mx-auto mb-6 opacity-50" />
           <h2 className="text-2xl font-semibold mb-4">No favorites yet</h2>
@@ -66,7 +132,7 @@ const Favorites = () => {
             Start exploring quotes and save the ones that inspire you
           </p>
         </div>
-      ) : (
+      ) : !loading && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFavorites.map((quote, index) => (
