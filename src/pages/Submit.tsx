@@ -11,7 +11,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-const categories = ["motivation", "success", "wisdom", "life", "inspiration", "business"];
+const categories = [
+  "motivation", "success", "wisdom", "life", "inspiration", "business",
+  "love", "friendship", "leadership", "creativity", "happiness", "health", 
+  "education", "travel", "family", "other"
+];
+
+const getCategoryColor = (category: string) => {
+  return `rgb(var(--category-${category}) / 0.2)`;
+};
+
+const getCategoryTextColor = (category: string) => {
+  return `rgb(var(--category-${category}-dark))`;
+};
 
 const Submit = () => {
   const [loading, setLoading] = useState(false);
@@ -152,7 +164,16 @@ const Submit = () => {
                   <SelectContent>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full border"
+                            style={{ 
+                              backgroundColor: getCategoryColor(category),
+                              borderColor: getCategoryTextColor(category)
+                            }}
+                          />
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

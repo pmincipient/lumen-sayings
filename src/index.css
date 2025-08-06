@@ -68,21 +68,41 @@
   /* Animations */
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Category Colors - Light Pastel (Dark Mode) */
-  --category-motivation: 251 146 60; /* orange */
-  --category-success: 34 197 94; /* green */
-  --category-wisdom: 147 51 234; /* purple */
-  --category-life: 236 72 153; /* pink */
-  --category-inspiration: 59 130 246; /* blue */
-  --category-business: 245 158 11; /* amber */
-  
-  /* Category Colors - Light Pastel */
-  --category-motivation: 251 146 60; /* orange */
-  --category-success: 34 197 94; /* green */
-  --category-wisdom: 147 51 234; /* purple */
-  --category-life: 236 72 153; /* pink */
-  --category-inspiration: 59 130 246; /* blue */
-  --category-business: 245 158 11; /* amber */
+  /* Category Colors - Light pastel backgrounds for quote cards */
+  --category-motivation: 255 182 193; /* Light pink */
+  --category-success: 144 238 144; /* Light green */
+  --category-wisdom: 221 160 221; /* Plum */
+  --category-life: 173 216 230; /* Light blue */
+  --category-inspiration: 255 218 185; /* Peach */
+  --category-business: 255 255 224; /* Light yellow */
+  --category-love: 255 228 225; /* Misty rose */
+  --category-friendship: 230 230 250; /* Lavender */
+  --category-leadership: 255 239 213; /* Papaya whip */
+  --category-creativity: 250 240 230; /* Linen */
+  --category-happiness: 255 250 205; /* Lemon chiffon */
+  --category-health: 240 255 240; /* Honeydew */
+  --category-education: 248 248 255; /* Ghost white */
+  --category-travel: 175 238 238; /* Pale turquoise */
+  --category-family: 255 228 196; /* Bisque */
+  --category-other: 245 245 245; /* White smoke */
+
+  /* Category Border/Text Colors - Darker shades for visibility */
+  --category-motivation-dark: 199 21 133; /* Medium violet red */
+  --category-success-dark: 34 139 34; /* Forest green */
+  --category-wisdom-dark: 138 43 226; /* Blue violet */
+  --category-life-dark: 30 144 255; /* Dodger blue */
+  --category-inspiration-dark: 255 140 0; /* Dark orange */
+  --category-business-dark: 218 165 32; /* Goldenrod */
+  --category-love-dark: 220 20 60; /* Crimson */
+  --category-friendship-dark: 72 61 139; /* Dark slate blue */
+  --category-leadership-dark: 184 134 11; /* Dark goldenrod */
+  --category-creativity-dark: 160 82 45; /* Saddle brown */
+  --category-happiness-dark: 255 215 0; /* Gold */
+  --category-health-dark: 0 128 0; /* Green */
+  --category-education-dark: 75 0 130; /* Indigo */
+  --category-travel-dark: 0 139 139; /* Dark cyan */
+  --category-family-dark: 210 180 140; /* Tan */
+  --category-other-dark: 105 105 105; /* Dim gray */
     --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Layout */
@@ -221,41 +241,101 @@
     -webkit-text-fill-color: transparent;
   }
   
-  /* Category colors */
+  /* Category color utilities - pastel backgrounds with dark text/borders */
   .category-motivation {
-    background: hsl(var(--motivation) / 0.1);
-    border-color: hsl(var(--motivation));
-    color: hsl(var(--motivation));
+    background: rgb(var(--category-motivation) / 0.3);
+    border-color: rgb(var(--category-motivation-dark));
+    color: rgb(var(--category-motivation-dark));
   }
   
   .category-success {
-    background: hsl(var(--success) / 0.1);
-    border-color: hsl(var(--success));
-    color: hsl(var(--success));
+    background: rgb(var(--category-success) / 0.3);
+    border-color: rgb(var(--category-success-dark));
+    color: rgb(var(--category-success-dark));
   }
   
   .category-wisdom {
-    background: hsl(var(--wisdom) / 0.1);
-    border-color: hsl(var(--wisdom));
-    color: hsl(var(--wisdom));
+    background: rgb(var(--category-wisdom) / 0.3);
+    border-color: rgb(var(--category-wisdom-dark));
+    color: rgb(var(--category-wisdom-dark));
   }
   
   .category-life {
-    background: hsl(var(--life) / 0.1);
-    border-color: hsl(var(--life));
-    color: hsl(var(--life));
+    background: rgb(var(--category-life) / 0.3);
+    border-color: rgb(var(--category-life-dark));
+    color: rgb(var(--category-life-dark));
   }
   
   .category-inspiration {
-    background: hsl(var(--inspiration) / 0.1);
-    border-color: hsl(var(--inspiration));
-    color: hsl(var(--inspiration));
+    background: rgb(var(--category-inspiration) / 0.3);
+    border-color: rgb(var(--category-inspiration-dark));
+    color: rgb(var(--category-inspiration-dark));
   }
   
   .category-business {
-    background: hsl(var(--business) / 0.1);
-    border-color: hsl(var(--business));
-    color: hsl(var(--business));
+    background: rgb(var(--category-business) / 0.3);
+    border-color: rgb(var(--category-business-dark));
+    color: rgb(var(--category-business-dark));
+  }
+  
+  .category-love {
+    background: rgb(var(--category-love) / 0.3);
+    border-color: rgb(var(--category-love-dark));
+    color: rgb(var(--category-love-dark));
+  }
+  
+  .category-friendship {
+    background: rgb(var(--category-friendship) / 0.3);
+    border-color: rgb(var(--category-friendship-dark));
+    color: rgb(var(--category-friendship-dark));
+  }
+  
+  .category-leadership {
+    background: rgb(var(--category-leadership) / 0.3);
+    border-color: rgb(var(--category-leadership-dark));
+    color: rgb(var(--category-leadership-dark));
+  }
+  
+  .category-creativity {
+    background: rgb(var(--category-creativity) / 0.3);
+    border-color: rgb(var(--category-creativity-dark));
+    color: rgb(var(--category-creativity-dark));
+  }
+  
+  .category-happiness {
+    background: rgb(var(--category-happiness) / 0.3);
+    border-color: rgb(var(--category-happiness-dark));
+    color: rgb(var(--category-happiness-dark));
+  }
+  
+  .category-health {
+    background: rgb(var(--category-health) / 0.3);
+    border-color: rgb(var(--category-health-dark));
+    color: rgb(var(--category-health-dark));
+  }
+  
+  .category-education {
+    background: rgb(var(--category-education) / 0.3);
+    border-color: rgb(var(--category-education-dark));
+    color: rgb(var(--category-education-dark));
+  }
+  
+  .category-travel {
+    background: rgb(var(--category-travel) / 0.3);
+    border-color: rgb(var(--category-travel-dark));
+    color: rgb(var(--category-travel-dark));
+  }
+  
+  .category-family {
+    background: rgb(var(--category-family) / 0.3);
+    border-color: rgb(var(--category-family-dark));
+    color: rgb(var(--category-family-dark));
+  }
+  
+  .category-other {
+    background: rgb(var(--category-other) / 0.3);
+    border-color: rgb(var(--category-other-dark));
+    color: rgb(var(--category-other-dark));
   }
   
   /* Animations */

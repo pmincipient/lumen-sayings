@@ -15,27 +15,15 @@ interface QuoteCardProps {
 }
 
 const getCategoryColor = (category: string) => {
-  const colorMap: Record<string, string> = {
-    motivation: "hsl(var(--category-motivation) / 0.1)",
-    success: "hsl(var(--category-success) / 0.1)",
-    wisdom: "hsl(var(--category-wisdom) / 0.1)",
-    life: "hsl(var(--category-life) / 0.1)",
-    inspiration: "hsl(var(--category-inspiration) / 0.1)",
-    business: "hsl(var(--category-business) / 0.1)",
-  };
-  return colorMap[category] || "hsl(var(--muted) / 0.1)";
+  return `rgb(var(--category-${category}) / 0.2)`;
 };
 
 const getCategoryBorderColor = (category: string) => {
-  const colorMap: Record<string, string> = {
-    motivation: "hsl(var(--category-motivation) / 0.3)",
-    success: "hsl(var(--category-success) / 0.3)",
-    wisdom: "hsl(var(--category-wisdom) / 0.3)",
-    life: "hsl(var(--category-life) / 0.3)",
-    inspiration: "hsl(var(--category-inspiration) / 0.3)",
-    business: "hsl(var(--category-business) / 0.3)",
-  };
-  return colorMap[category] || "hsl(var(--border))";
+  return `rgb(var(--category-${category}) / 0.4)`;
+};
+
+const getCategoryTextColor = (category: string) => {
+  return `rgb(var(--category-${category}-dark))`;
 };
 
 const QuoteCard = ({ 
@@ -82,17 +70,6 @@ const QuoteCard = ({
     }
   };
 
-  const getCategoryClass = (cat: string) => {
-    const categoryMap: Record<string, string> = {
-      motivation: "category-motivation",
-      success: "category-success", 
-      wisdom: "category-wisdom",
-      life: "category-life",
-      inspiration: "category-inspiration",
-      business: "category-business",
-    };
-    return categoryMap[cat.toLowerCase()] || "category-motivation";
-  };
 
   return (
     <Card 
@@ -120,9 +97,9 @@ const QuoteCard = ({
               variant="outline" 
               className="border-2 font-medium"
               style={{ 
-                backgroundColor: `hsl(var(--category-${category}) / 0.2)`,
-                color: `hsl(var(--category-${category}))`,
-                borderColor: `hsl(var(--category-${category}) / 0.4)`
+                backgroundColor: getCategoryColor(category),
+                color: getCategoryTextColor(category),
+                borderColor: getCategoryTextColor(category)
               }}
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}

@@ -7,7 +7,11 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const categories = ["all", "motivation", "success", "wisdom", "life", "inspiration", "business"];
+const categories = [
+  "all", "motivation", "success", "wisdom", "life", "inspiration", "business",
+  "love", "friendship", "leadership", "creativity", "happiness", "health", 
+  "education", "travel", "family", "other"
+];
 
 interface Quote {
   id: string;

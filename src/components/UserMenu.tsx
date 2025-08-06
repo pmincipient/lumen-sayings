@@ -1,0 +1,74 @@
+import { User, Settings, Heart, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { NavLink } from "react-router-dom";
+
+const UserMenu = () => {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative">
+          <User className="h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-48 p-2" align="end">
+        <div className="space-y-1">
+          <NavLink
+            to="/profile"
+            className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+          >
+            <User className="h-4 w-4" />
+            Profile
+          </NavLink>
+          
+          <div className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors">
+            <Settings className="h-4 w-4" />
+            <span className="flex-1">Theme</span>
+            <ThemeToggle />
+          </div>
+          
+          <NavLink
+            to="/favorites"
+            className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+          >
+            <Heart className="h-4 w-4" />
+            Favorites
+          </NavLink>
+          
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors text-left"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export default UserMenu;
