@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CustomCursor } from "@/components/CustomCursor";
 import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
@@ -28,6 +29,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <div className="min-h-screen bg-background">
+              <CustomCursor />
               <Navigation />
               <Routes>
                 <Route path="/" element={<Home />} />
