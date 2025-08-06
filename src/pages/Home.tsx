@@ -234,13 +234,8 @@ const Home = () => {
     });
   };
 
-  // Calculate and synchronize card heights when quotes are expanded
+  // Calculate and synchronize card heights
   useEffect(() => {
-    if (expandedQuotes.size === 0) {
-      setCardHeight('auto');
-      return;
-    }
-
     // Wait for DOM updates, then calculate the tallest card
     setTimeout(() => {
       let maxHeight = 0;
@@ -368,7 +363,7 @@ const Home = () => {
               onUpdate={handleUpdateQuote}
               isExpanded={expandedQuotes.has(quote.id)}
               onToggleExpanded={handleToggleExpanded}
-              maxHeight={expandedQuotes.size > 0 ? cardHeight : 'auto'}
+              maxHeight={cardHeight}
             />
           </div>
         ))}
