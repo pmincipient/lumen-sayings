@@ -13,6 +13,7 @@ import Favorites from "./pages/Favorites";
 import Submit from "./pages/Submit";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Theme from "./pages/Theme";
 import SharedQuote from "./pages/SharedQuote";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/submit" element={<Submit />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/theme" element={<Theme />} />
                 <Route path="/shared/:id" element={<SharedQuote />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

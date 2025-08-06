@@ -1,7 +1,6 @@
-import { User, Settings, Heart, LogOut } from "lucide-react";
+import { User, Settings, Heart, LogOut, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { NavLink } from "react-router-dom";
@@ -44,11 +43,13 @@ const UserMenu = () => {
             Profile
           </NavLink>
           
-          <div className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors">
-            <Settings className="h-4 w-4" />
-            <span className="flex-1">Theme</span>
-            <ThemeToggle />
-          </div>
+          <NavLink
+            to="/theme"
+            className="flex items-center gap-2 w-full px-2 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+          >
+            <Palette className="h-4 w-4" />
+            Theme
+          </NavLink>
           
           <NavLink
             to="/favorites"
