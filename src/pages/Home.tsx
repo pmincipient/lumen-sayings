@@ -125,6 +125,11 @@ const Home = () => {
       );
     }
 
+    // Limit to 3 quotes for unauthenticated users
+    if (!user) {
+      filtered = filtered.slice(0, 3);
+    }
+
     setFilteredQuotes(filtered);
   }, [quotes, selectedCategory, searchTerm, selectedTab, user]);
 
