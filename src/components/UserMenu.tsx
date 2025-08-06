@@ -16,8 +16,8 @@ const UserMenu = () => {
         title: "Signed out",
         description: "You have been successfully signed out",
       });
-      // Redirect to gallery page after successful logout
-      navigate("/");
+      // Redirect to auth page after successful logout
+      navigate("/auth");
     } catch (error) {
       toast({
         title: "Error",

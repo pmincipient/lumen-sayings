@@ -23,10 +23,16 @@ const Auth = () => {
   const { user, signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Redirect if already logged in (but not if coming from password reset)
   useEffect(() => {
-    if (user) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPasswordReset = urlParams.get('type') === 'recovery';
+    
+    if (user && !isPasswordReset) {
       navigate('/');
+    } else if (user && isPasswordReset) {
+      // If user is logged in from password reset, redirect to reset password page
+      navigate('/reset-password');
     }
   }, [user, navigate]);
 
