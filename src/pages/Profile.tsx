@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Camera, Save, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,29 +7,85 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [profileData, setProfileData] = useState({
-    username: "johndoe",
-    email: "john.doe@example.com",
-    bio: "Lover of wisdom and inspiring quotes. Always seeking motivation and sharing positivity.",
+    username: "",
+    email: "",
+    bio: "",
     avatarUrl: "",
   });
 
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      try {
+        setInitialLoading(true);
+        
+        // Fetch profile from profiles table
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+
+        // Set profile data with user email from auth
+        setProfileData({
+          username: profile?.username || "",
+          email: user.email || "",
+          bio: profile?.bio || "",
+          avatarUrl: profile?.avatar_url || "",
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+    
     setLoading(true);
 
     try {
-      // TODO: Implement Supabase profile update
-      console.log("Updating profile:", profileData);
+      // Update profile in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: user.id,
+          username: profileData.username,
+          bio: profileData.bio,
+          avatar_url: profileData.avatarUrl,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Profile updated!",
         description: "Your changes have been saved successfully",
       });
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Update failed",
         description: "Please try again later",
