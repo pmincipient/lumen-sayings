@@ -73,16 +73,16 @@ const QuoteCard = ({
 
   return (
     <Card 
-      className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in border-2" 
+      className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in border-2 h-full flex flex-col" 
       style={{ 
         backgroundColor: getCategoryColor(category),
         borderColor: getCategoryBorderColor(category)
       }}
     >
-      <CardContent className="p-6">
-        <div className="space-y-4">
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="space-y-4 flex-grow">
           {/* Quote Content */}
-          <blockquote className="text-lg leading-relaxed text-foreground">
+          <blockquote className="text-lg leading-relaxed text-foreground flex-grow">
             "{content}"
           </blockquote>
           
@@ -90,50 +90,50 @@ const QuoteCard = ({
           <p className="text-sm font-medium text-muted-foreground">
             — {author}
           </p>
+        </div>
+        
+        {/* Bottom section with category and actions */}
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
+          <Badge 
+            variant="outline" 
+            className="border-2 font-medium"
+            style={{ 
+              backgroundColor: getCategoryColor(category),
+              color: getCategoryTextColor(category),
+              borderColor: getCategoryTextColor(category)
+            }}
+          >
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </Badge>
           
-          {/* Category Badge */}
-          <div className="flex items-center justify-between">
-            <Badge 
-              variant="outline" 
-              className="border-2 font-medium"
-              style={{ 
-                backgroundColor: getCategoryColor(category),
-                color: getCategoryTextColor(category),
-                borderColor: getCategoryTextColor(category)
-              }}
+          {/* Actions - Always visible */}
+          <div className="flex items-center space-x-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onToggleFavorite?.(id)}
+              className={`h-8 w-8 ${isFavorited ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'}`}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Badge>
+              <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+            </Button>
             
-            {/* Actions */}
-            <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onToggleFavorite?.(id)}
-                className={`h-8 w-8 ${isFavorited ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'}`}
-              >
-                <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
-              </Button>
-              
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleCopy}
-                className="h-8 w-8 hover:text-primary"
-              >
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              </Button>
-              
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleShare}
-                className="h-8 w-8 hover:text-primary"
-              >
-                <Share2 className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleCopy}
+              className="h-8 w-8 hover:text-primary"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </Button>
+            
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleShare}
+              className="h-8 w-8 hover:text-primary"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </CardContent>

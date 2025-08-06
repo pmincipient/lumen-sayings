@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Menu, X, Home, Plus, User, Quote } from "lucide-react";
+import { Menu, X, Home, Plus, User, Quote, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,7 @@ const Navigation = () => {
     { to: "/", icon: Home, label: "Home" },
     ...(user ? [
       { to: "/submit", icon: Plus, label: "Submit" },
+      { to: "/favorites", icon: Heart, label: "Favorites" },
     ] : []),
     ...(!user ? [{ to: "/auth", icon: User, label: "Login" }] : []),
   ];
