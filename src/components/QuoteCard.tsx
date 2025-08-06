@@ -27,6 +27,9 @@ interface QuoteCardProps {
   onToggleFavorite?: (id: string) => void;
   onDelete?: (id: string) => void;
   onUpdate?: (id: string) => void;
+  isExpanded?: boolean;
+  onToggleExpanded?: (id: string) => void;
+  maxHeight?: string;
 }
 
 const getCategoryColor = (category: string) => {
@@ -50,10 +53,20 @@ const QuoteCard = ({
   isFavorited = false, 
   onToggleFavorite,
   onDelete,
-  onUpdate
+  onUpdate,
+  isExpanded = false,
+  onToggleExpanded,
+  maxHeight
 }: QuoteCardProps) => {
   const [copied, setCopied] = useState(false);
   const { user } = useAuth();
+  
+  // Character limit for truncation
+  const CHAR_LIMIT = 150;
+  const shouldTruncate = content.length > CHAR_LIMIT;
+  const displayContent = shouldTruncate && !isExpanded 
+    ? content.substring(0, CHAR_LIMIT) + "..."
+    : content;
 
   const isOwner = user?.id === user_id;
 
@@ -126,18 +139,32 @@ const QuoteCard = ({
 
   return (
     <Card 
-      className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in border-2 h-full flex flex-col" 
+      className="glass-card group hover:scale-[1.02] transition-all duration-300 animate-fade-in border-2 flex flex-col" 
       style={{ 
         backgroundColor: getCategoryColor(category),
-        borderColor: getCategoryBorderColor(category)
+        borderColor: getCategoryBorderColor(category),
+        minHeight: maxHeight || 'auto',
+        height: maxHeight || 'auto'
       }}
     >
       <CardContent className="p-6 flex flex-col h-full">
         <div className="space-y-4 flex-grow">
           {/* Quote Content */}
-          <blockquote className="text-lg leading-relaxed text-foreground flex-grow">
-            "{content}"
+          <blockquote className="text-lg leading-relaxed text-foreground">
+            "{displayContent}"
           </blockquote>
+          
+          {/* Read More/Less Button */}
+          {shouldTruncate && (
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => onToggleExpanded?.(id)}
+              className="p-0 h-auto text-primary hover:text-primary/80 self-start"
+            >
+              {isExpanded ? "Read less" : "Read more"}
+            </Button>
+          )}
           
           {/* Author */}
           <p className="text-sm font-medium text-muted-foreground">

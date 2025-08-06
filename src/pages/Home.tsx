@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,6 +47,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [selectedQuoteForUpdate, setSelectedQuoteForUpdate] = useState<Quote | null>(null);
+  const [expandedQuotes, setExpandedQuotes] = useState<Set<string>>(new Set());
+  const [cardHeight, setCardHeight] = useState<string>('auto');
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { user } = useAuth();
 
   // Fetch quotes from Supabase
@@ -218,6 +221,52 @@ const Home = () => {
     }
   };
 
+  // Handle quote expansion
+  const handleToggleExpanded = (quoteId: string) => {
+    setExpandedQuotes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(quoteId)) {
+        newSet.delete(quoteId);
+      } else {
+        newSet.add(quoteId);
+      }
+      return newSet;
+    });
+  };
+
+  // Calculate and synchronize card heights when quotes are expanded
+  useEffect(() => {
+    if (expandedQuotes.size === 0) {
+      setCardHeight('auto');
+      return;
+    }
+
+    // Wait for DOM updates, then calculate the tallest card
+    setTimeout(() => {
+      let maxHeight = 0;
+      cardRefs.current.forEach((element) => {
+        if (element) {
+          const height = element.offsetHeight;
+          if (height > maxHeight) {
+            maxHeight = height;
+          }
+        }
+      });
+      
+      if (maxHeight > 0) {
+        setCardHeight(`${maxHeight}px`);
+      }
+    }, 100);
+  }, [expandedQuotes, filteredQuotes]);
+
+  // Function to set card ref
+  const setCardRef = (id: string, element: HTMLDivElement | null) => {
+    if (element) {
+      cardRefs.current.set(id, element);
+    } else {
+      cardRefs.current.delete(id);
+    }
+  };
   const getCategoryClass = (cat: string) => {
     const categoryMap: Record<string, string> = {
       motivation: "category-motivation",
@@ -309,6 +358,7 @@ const Home = () => {
             key={quote.id}
             style={{ animationDelay: `${index * 100}ms` }}
             className="animate-slide-up"
+            ref={(el) => setCardRef(quote.id, el)}
           >
             <QuoteCard
               {...quote}
@@ -316,6 +366,9 @@ const Home = () => {
               onToggleFavorite={handleToggleFavorite}
               onDelete={handleDeleteQuote}
               onUpdate={handleUpdateQuote}
+              isExpanded={expandedQuotes.has(quote.id)}
+              onToggleExpanded={handleToggleExpanded}
+              maxHeight={expandedQuotes.size > 0 ? cardHeight : 'auto'}
             />
           </div>
         ))}
