@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Palette, Moon, Sun, Brush, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Palette, Moon, Sun, Brush, Save, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,14 @@ const Theme = () => {
   const { theme, setTheme } = useTheme();
   const [customColor, setCustomColor] = useState("#6366f1");
   const [showColorPicker, setShowColorPicker] = useState(theme === "custom");
+  const [previousTheme, setPreviousTheme] = useState<string>("light");
+
+  // Store previous theme when switching to custom
+  useEffect(() => {
+    if (theme && theme !== "custom") {
+      setPreviousTheme(theme);
+    }
+  }, [theme]);
 
   // Convert hex to HSL
   const hexToHsl = (hex: string) => {
@@ -91,6 +99,28 @@ const Theme = () => {
     toast({
       title: "Custom theme applied!",
       description: "Your personalized theme has been activated",
+    });
+  };
+
+  const handleResetTheme = () => {
+    setTheme(previousTheme);
+    setShowColorPicker(false);
+    
+    // Clear custom CSS variables by removing them
+    const customProperties = ['--primary', '--primary-foreground', '--secondary', '--accent', '--border', '--ring'];
+    customProperties.forEach(prop => {
+      document.documentElement.style.removeProperty(prop);
+    });
+    
+    // Clear category colors
+    const categories = ['motivational', 'life', 'wisdom', 'success', 'happiness', 'inspiration'];
+    categories.forEach(category => {
+      document.documentElement.style.removeProperty(`--category-${category}`);
+    });
+    
+    toast({
+      title: "Theme reset!",
+      description: `Restored to ${previousTheme} theme`,
     });
   };
 
@@ -198,14 +228,25 @@ const Theme = () => {
                         Your selected color
                       </p>
                     </div>
-                    <Button 
-                      onClick={handleApplyTheme}
-                      className="w-full bg-primary hover:bg-primary/90"
-                      size="lg"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Apply Custom Theme
-                    </Button>
+                    <div className="w-full space-y-3">
+                      <Button 
+                        onClick={handleApplyTheme}
+                        className="w-full bg-primary hover:bg-primary/90"
+                        size="lg"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Apply Custom Theme
+                      </Button>
+                      <Button 
+                        onClick={handleResetTheme}
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Reset to {previousTheme === "light" ? "Light" : "Dark"} Theme
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
