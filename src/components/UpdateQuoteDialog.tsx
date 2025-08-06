@@ -143,7 +143,7 @@ const UpdateQuoteDialog = ({ isOpen, onClose, quote, onUpdate }: UpdateQuoteDial
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-zinc-900">
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat.charAt(0).toUpperCase() + cat.slice(1)}

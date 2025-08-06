@@ -267,10 +267,10 @@ const Home = () => {
           </div>
           <div className="w-full sm:w-48">
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="glass-card border-2">
+              <SelectTrigger className=" border-2 ">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-zinc-900">
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category === "all" ? (

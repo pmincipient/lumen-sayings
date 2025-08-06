@@ -161,7 +161,7 @@ const Submit = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-zinc-900">
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         <div className="flex items-center gap-2">
