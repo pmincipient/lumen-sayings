@@ -65,7 +65,7 @@ const Profile = () => {
     setLoading(true);
 
     try {
-      // Update profile in Supabase
+      // Update profile in Supabase with proper conflict resolution
       const { error } = await supabase
         .from('profiles')
         .upsert({
@@ -74,6 +74,8 @@ const Profile = () => {
           bio: profileData.bio,
           avatar_url: profileData.avatarUrl,
           updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) {
