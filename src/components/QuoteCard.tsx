@@ -55,18 +55,39 @@ const QuoteCard = ({
   };
 
   const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/shared/${id}`;
+    const shareText = `"${content}" - ${author}`;
+    
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Check out this quote",
-          text: `"${content}" - ${author}`,
-          url: `${window.location.origin}/shared/${id}`,
+          title: "Check out this inspiring quote",
+          text: shareText,
+          url: shareUrl,
         });
       } catch (err) {
-        // User cancelled or error occurred
+        // User cancelled or error occurred, fallback to copying URL
+        await copyShareUrl(shareUrl);
       }
     } else {
-      handleCopy();
+      // Fallback: copy the shareable URL instead of just the quote text
+      await copyShareUrl(shareUrl);
+    }
+  };
+
+  const copyShareUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Share link copied!",
+        description: "Share this link with others to view this quote",
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to copy share link",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
