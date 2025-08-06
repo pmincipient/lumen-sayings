@@ -1,17 +1,32 @@
 import { useState } from "react";
-import { Heart, Share2, Copy, Check } from "lucide-react";
+import { Heart, Share2, Copy, Check, Trash2, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/hooks/useAuth";
 
 interface QuoteCardProps {
   id: string;
   content: string;
   author: string;
   category: string;
+  user_id: string;
   isFavorited?: boolean;
   onToggleFavorite?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onUpdate?: (id: string) => void;
 }
 
 const getCategoryColor = (category: string) => {
@@ -30,11 +45,17 @@ const QuoteCard = ({
   id, 
   content, 
   author, 
-  category, 
+  category,
+  user_id,
   isFavorited = false, 
-  onToggleFavorite 
+  onToggleFavorite,
+  onDelete,
+  onUpdate
 }: QuoteCardProps) => {
   const [copied, setCopied] = useState(false);
+  const { user } = useAuth();
+
+  const isOwner = user?.id === user_id;
 
   const handleCopy = async () => {
     try {
@@ -91,6 +112,17 @@ const QuoteCard = ({
     }
   };
 
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(id);
+    }
+  };
+
+  const handleUpdate = () => {
+    if (onUpdate) {
+      onUpdate(id);
+    }
+  };
 
   return (
     <Card 
@@ -155,6 +187,49 @@ const QuoteCard = ({
             >
               <Share2 className="h-4 w-4" />
             </Button>
+
+            {/* Owner-only actions */}
+            {isOwner && (
+              <>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleUpdate}
+                  className="h-8 w-8 hover:text-blue-500"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 hover:text-red-500"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Quote</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this quote? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
           </div>
         </div>
       </CardContent>

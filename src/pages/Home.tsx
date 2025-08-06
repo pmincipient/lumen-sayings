@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuoteCard from "@/components/QuoteCard";
+import UpdateQuoteDialog from "@/components/UpdateQuoteDialog";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const categories = [
   "all", "motivation", "success", "wisdom", "life", "inspiration", "business",
@@ -43,6 +45,8 @@ const Home = () => {
   const [selectedTab, setSelectedTab] = useState("all");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [selectedQuoteForUpdate, setSelectedQuoteForUpdate] = useState<Quote | null>(null);
   const { user } = useAuth();
 
   // Fetch quotes from Supabase
@@ -153,6 +157,67 @@ const Home = () => {
     }
   };
 
+  const handleDeleteQuote = async (quoteId: string) => {
+    try {
+      const { error } = await supabase
+        .from('quotes')
+        .delete()
+        .eq('id', quoteId);
+
+      if (error) {
+        console.error('Error deleting quote:', error);
+        toast({
+          title: "Error deleting quote",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      } else {
+        // Remove the quote from the local state
+        setQuotes(prev => prev.filter(quote => quote.id !== quoteId));
+        toast({
+          title: "Quote deleted successfully!",
+          description: "Your quote has been removed",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error deleting quote",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateQuote = (quoteId: string) => {
+    const quote = quotes.find(q => q.id === quoteId);
+    if (quote) {
+      setSelectedQuoteForUpdate(quote);
+      setUpdateDialogOpen(true);
+    }
+  };
+
+  const handleQuoteUpdated = async () => {
+    // Refresh quotes after update
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('quotes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching quotes:', error);
+      } else {
+        setQuotes(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getCategoryClass = (cat: string) => {
     const categoryMap: Record<string, string> = {
       motivation: "category-motivation",
@@ -247,6 +312,8 @@ const Home = () => {
               {...quote}
               isFavorited={favorites.includes(quote.id)}
               onToggleFavorite={handleToggleFavorite}
+              onDelete={handleDeleteQuote}
+              onUpdate={handleUpdateQuote}
             />
           </div>
         ))}
@@ -263,6 +330,14 @@ const Home = () => {
           </p>
         </div>
       )}
+
+      {/* Update Quote Dialog */}
+      <UpdateQuoteDialog
+        isOpen={updateDialogOpen}
+        onClose={() => setUpdateDialogOpen(false)}
+        quote={selectedQuoteForUpdate}
+        onUpdate={handleQuoteUpdated}
+      />
     </div>
   );
 };
