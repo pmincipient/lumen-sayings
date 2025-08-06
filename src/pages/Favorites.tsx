@@ -32,16 +32,13 @@ interface Quote {
   created_at: string;
 }
 
-interface CategoryStats {
-  category: string;
-  count: number;
+interface QuotesByCategory {
+  [category: string]: Quote[];
 }
 
 const Favorites = () => {
   const [favoriteQuotes, setFavoriteQuotes] = useState<Quote[]>([]);
-  const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
+  const [quotesByCategory, setQuotesByCategory] = useState<QuotesByCategory>({});
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -81,13 +78,16 @@ const Favorites = () => {
           const quotes = data?.map(item => item.quotes).filter(Boolean) as Quote[] || [];
           setFavoriteQuotes(quotes);
           
-          // Calculate category stats
-          const stats = categories.slice(1).map(category => ({
-            category,
-            count: quotes.filter(quote => quote.category === category).length
-          })).filter(stat => stat.count > 0);
+          // Group quotes by category
+          const grouped = quotes.reduce((acc: QuotesByCategory, quote) => {
+            if (!acc[quote.category]) {
+              acc[quote.category] = [];
+            }
+            acc[quote.category].push(quote);
+            return acc;
+          }, {});
           
-          setCategoryStats(stats);
+          setQuotesByCategory(grouped);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -99,20 +99,12 @@ const Favorites = () => {
     fetchFavoriteQuotes();
   }, [user]);
 
-  // Filter quotes by category
-  useEffect(() => {
-    if (selectedCategory === "all") {
-      setFilteredQuotes(favoriteQuotes);
-    } else {
-      setFilteredQuotes(favoriteQuotes.filter(quote => quote.category === selectedCategory));
-    }
-  }, [favoriteQuotes, selectedCategory]);
 
   const handleToggleFavorite = async (quoteId: string) => {
     if (!user) return;
 
     try {
-      // Remove from favorites (since we're on favorites page, only removal makes sense)
+      // Remove from favorites
       const { error } = await supabase
         .from('favorites')
         .delete()
@@ -121,7 +113,21 @@ const Favorites = () => {
 
       if (!error) {
         // Update local state
-        setFavoriteQuotes(prev => prev.filter(quote => quote.id !== quoteId));
+        setFavoriteQuotes(prev => {
+          const updated = prev.filter(quote => quote.id !== quoteId);
+          
+          // Re-group quotes by category
+          const grouped = updated.reduce((acc: QuotesByCategory, quote) => {
+            if (!acc[quote.category]) {
+              acc[quote.category] = [];
+            }
+            acc[quote.category].push(quote);
+            return acc;
+          }, {});
+          
+          setQuotesByCategory(grouped);
+          return updated;
+        });
       }
     } catch (error) {
       console.error('Error removing favorite:', error);
@@ -141,72 +147,6 @@ const Favorites = () => {
         </p>
       </div>
 
-      {/* Category Stats */}
-      {categoryStats.length > 0 && (
-        <div className="mb-8">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {categoryStats.map((stat) => (
-                  <Badge
-                    key={stat.category}
-                    variant="outline"
-                    className="cursor-pointer border-2"
-                    style={{
-                      backgroundColor: getCategoryColor(stat.category),
-                      color: getCategoryTextColor(stat.category),
-                      borderColor: getCategoryTextColor(stat.category)
-                    }}
-                    onClick={() => setSelectedCategory(stat.category)}
-                  >
-                    {stat.category.charAt(0).toUpperCase() + stat.category.slice(1)} ({stat.count})
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Category Filter */}
-      <div className="flex justify-center mb-8">
-        <div className="w-full max-w-xs">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="glass-card border-2">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category === "all" ? (
-                    "All Categories"
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full border"
-                        style={{ 
-                          backgroundColor: getCategoryColor(category),
-                          borderColor: getCategoryTextColor(category)
-                        }}
-                      />
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                      {categoryStats.find(s => s.category === category) && (
-                        <span className="text-xs text-muted-foreground">
-                          ({categoryStats.find(s => s.category === category)?.count})
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center py-12">
@@ -214,32 +154,63 @@ const Favorites = () => {
         </div>
       )}
 
-      {/* Quotes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredQuotes.map((quote, index) => (
-          <div
-            key={quote.id}
-            style={{ animationDelay: `${index * 100}ms` }}
-            className="animate-slide-up"
-          >
-            <QuoteCard
-              {...quote}
-              isFavorited={true}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* No Results */}
-      {filteredQuotes.length === 0 && !loading && (
+      {/* Category-wise Quote Sections */}
+      {Object.entries(quotesByCategory).length > 0 ? (
+        <div className="space-y-12">
+          {Object.entries(quotesByCategory).map(([category, quotes]) => (
+            <div key={category} className="animate-fade-in">
+              {/* Category Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div 
+                  className="w-4 h-4 rounded-full border-2"
+                  style={{ 
+                    backgroundColor: getCategoryColor(category),
+                    borderColor: getCategoryTextColor(category)
+                  }}
+                />
+                <h2 
+                  className="text-2xl font-bold"
+                  style={{ color: getCategoryTextColor(category) }}
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </h2>
+                <Badge 
+                  variant="outline"
+                  className="ml-2"
+                  style={{
+                    backgroundColor: getCategoryColor(category),
+                    color: getCategoryTextColor(category),
+                    borderColor: getCategoryTextColor(category)
+                  }}
+                >
+                  {quotes.length}
+                </Badge>
+              </div>
+              
+              {/* Quotes Grid for this category */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {quotes.map((quote, index) => (
+                  <div
+                    key={quote.id}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                    className="animate-slide-up"
+                  >
+                    <QuoteCard
+                      {...quote}
+                      isFavorited={true}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : !loading && (
         <div className="text-center py-12">
           <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <p className="text-lg text-muted-foreground">
-            {favoriteQuotes.length === 0 
-              ? "No favorite quotes yet. Start exploring and save the ones you love!"
-              : "No quotes found in this category."
-            }
+            No favorite quotes yet. Start exploring and save the ones you love!
           </p>
         </div>
       )}
