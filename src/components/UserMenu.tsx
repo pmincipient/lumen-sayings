@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
@@ -15,6 +16,8 @@ const UserMenu = () => {
         title: "Signed out",
         description: "You have been successfully signed out",
       });
+      // Redirect to gallery page after successful logout
+      navigate("/");
     } catch (error) {
       toast({
         title: "Error",
