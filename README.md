@@ -6,7 +6,29 @@ This section outlines the bugs identified and resolved as part of the Lovable bu
 
 ## Recent Bug Fixes Summary
 
-### 1. Gallery Page Logic Fix
+### 1. Duplicate Quote Prevention Fix
+**Commit:** `d694847` - Add duplicate quote prevention with custom error handling  
+**Date:** 2025-08-20  
+**Author:** urvish.patel
+
+#### Problem
+Users could submit duplicate quotes, leading to redundant content and poor user experience.
+
+#### Cause
+No validation mechanism to prevent users from submitting the same quote multiple times.
+
+#### Solution
+- Enforced unique constraint on (user_id, content) combination to prevent duplicate quotes at database level
+- Added migration for database-level uniqueness validation
+- Updated Submit component with custom error messaging for duplicate submissions
+- Improved user feedback when duplicate submissions occur
+- Strengthened validation and error handling for quote submissions
+
+#### File Changes
+- `src/pages/Submit.tsx`: Updated with custom error handling for duplicates
+- `supabase/migrations/20250806160000_add_unique_quote_constraint.sql`: Added unique constraint migration
+
+### 2. Gallery Page Logic Fix
 **Commit:** `368adc8` - Update gallery page logic  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -27,7 +49,7 @@ Implemented conditional display logic based on authentication status:
 
 ---
 
-### 2. Card Height Consistency Fix
+### 3. Card Height Consistency Fix
 **Commit:** `be90aa1` - Fix card height consistency  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -46,7 +68,7 @@ Updated CSS to ensure all cards maintain a uniform height for consistent visual 
 
 ---
 
-### 3. Card Sizing and Read More Fix
+### 4. Card Sizing and Read More Fix
 **Commit:** `1e197b9` - Fix card sizing and add readmore  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -65,7 +87,7 @@ Implemented proper card sizing and added "Read More" functionality for longer qu
 
 ---
 
-### 4. Auth and Logout Redirects Fix
+### 5. Auth and Logout Redirects Fix
 **Commit:** `85533a3` - Fix auth and logout redirects  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -87,7 +109,7 @@ Incorrect redirect paths in authentication flow handlers.
 
 ---
 
-### 5. Password Reset Flow Fix
+### 6. Password Reset Flow Fix
 **Commit:** `da1c7e6` - Fix password reset flow  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -111,7 +133,7 @@ Implemented a dedicated password reset page with:
 
 ---
 
-### 6. Profile Settings Data Fix
+### 7. Profile Settings Data Fix
 **Commit:** `3471d8a` - Fix profile settings to use real data  
 **Date:** 2025-08-06  
 **Author:** gpt-engineer-app[bot]
@@ -130,7 +152,7 @@ Updated profile settings page to fetch and display real user data from the authe
 
 ---
 
-### 7. Auth Form Reset Fix
+### 8. Auth Form Reset Fix
 **Commit:** `3db3b31` - fix(auth): reset form fields after successful login signup and password reset  
 **Date:** 2025-08-06  
 **Author:** devang.patel
@@ -156,7 +178,7 @@ Implemented form field reset after successful:
 
 ---
 
-### 8. Dropdown and Category Styles Fix
+### 9. Dropdown and Category Styles Fix
 **Commit:** `76626c6` - style: adjust dropdown and category styles for better visibility  
 **Date:** 2025-08-06  
 **Author:** devang.patel
@@ -179,7 +201,7 @@ Adjusted dropdown and category styles for better visibility and improved user ex
 
 ---
 
-### 9. Functionality & UI Changes
+### 10. Functionality & UI Changes
 **Commit:** `181be50` - feat: funcationality & UI changes  
 **Date:** 2025-08-06  
 **Author:** devang.patel
@@ -211,6 +233,7 @@ Implemented comprehensive functionality and UI improvements across the applicati
 | 3db3b31 | Auth form reset | src/components/Navigation.tsx, src/components/UserMenu.tsx, src/pages/Auth.tsx, src/pages/Home.tsx, src/pages/Submit.tsx |
 | 76626c6 | Dropdown and category styles | src/components/UpdateQuoteDialog.tsx, src/index.css, src/pages/Home.tsx, src/pages/Settings.tsx, src/pages/Submit.tsx |
 | 181be50 | Functionality & UI changes | Multiple files |
+| d694847 | Duplicate quote prevention | src/pages/Submit.tsx, supabase/migrations/20250806160000_add_unique_quote_constraint.sql |
 
 ---
 
