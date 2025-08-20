@@ -76,6 +76,16 @@ const Submit = () => {
         }]);
 
       if (error) {
+        
+        // Handle duplicate quote error specifically
+        if (error.message.includes('unique_quote_constraint')) {
+          toast({
+            title: "Duplicate quote detected",
+            description: "This quote or a very similar one already exists in our collection",
+            variant: "destructive",
+          });
+          return;
+        }
         throw error;
       }
       
